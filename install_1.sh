@@ -1,16 +1,15 @@
 #!/bin/sh
-# Install and compile Caffe on NVIDIA Jetson TK1 Development Kit
+# Install and compile OpenCV and Caffe on NVIDIA Jetson TK1 Development Kit
 
-sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade && sudo apt-get autoremove
-
-###############################################################################
-# OpenCV 3.1
-###############################################################################
-
+# General updates:
 sudo apt-get -y update
 sudo apt-get -y upgrade
 sudo apt-get -y dist-upgrade
 sudo apt-get -y autoremove
+
+###############################################################################
+# OpenCV 3.1
+###############################################################################
 
 # INSTALL THE DEPENDENCIES
 
@@ -57,6 +56,7 @@ sudo ldconfig
 # Caffe
 ###############################################################################
 
+# Dependencies:
 sudo add-apt-repository universe
 sudo apt-get update
 sudo apt-get install libprotobuf-dev protobuf-compiler gfortran \
@@ -67,15 +67,16 @@ libgoogle-glog-dev liblmdb-dev -y
 
 sudo usermod -a -G video $USER
 
-sudo apt-get install pip
+# Install modules on base python:
+sudo apt-get install python-pip
 sudo pip install scipy
 sudo pip install numpy
 sudo pip install matplotlib
 sudo pip install scikit-image
 sudo pip install protobuf
 
-# Git clone Caffe
-sudo apt-get install -y git
-git clone https://github.com/BVLC/caffe.git
-cd caffe
+# Download Caffe; need to modify Makefile to proceed
+wget https://github.com/BVLC/caffe/archive/master.zip
+unzip master.zip
+cd caffe-master
 cp Makefile.config.example Makefile.config
