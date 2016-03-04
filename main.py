@@ -36,7 +36,7 @@ dataset = 'ckplus'
 #dataset = 'misc'
 
 # Flags:
-cropFlag = True # False disables image cropping
+cropFlag = False # False disables image cropping
 
 ### START SCRIPT: ###
 
@@ -69,16 +69,20 @@ categories = [ 'Angry' , 'Disgust' , 'Fear' , 'Happy'  , 'Neutral' ,  'Sad' , 'S
 input_list, labels = importDataset(dir, dataset, categories)
 
 # Perform detection and cropping if desired (and it should be desired)
+crop_time = None
 if cropFlag:
     start = time.time()
     mkdir(dirCrop)
     input_list = faceCrop(dirCrop, input_list, color, single_face)
     crop_time = time.time() - start
 
+
 # Perform classification
 start = time.time()
 classify_emotions(input_list, color, categories, labels, plot_neurons=False, plot_confusion=True)
 classify_time = time.time() - start
 
-print 'Crop time: ' + str(crop_time) + 's'
+print 'Number of images: ' + str(len(input_list))
+if crop_time is not None:
+    print 'Crop time: ' + str(crop_time) + 's'
 print 'Classify time: ' + str(classify_time) + 's'

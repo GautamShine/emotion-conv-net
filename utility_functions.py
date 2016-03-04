@@ -120,14 +120,14 @@ def importCKPlusDataset(dir = 'CKPlus', categories = None, includeNeutral = Fals
         except ValueError:
             raise ValueError("\nError in importCKPlusDataset(): contemptAs = '" + contemptAs + "' is not a valid category. Exiting.\n")
 
-    # Get all posssible label and image filenames
+    # Get all possible label and image filenames
     imageFiles = glob.glob(dirImages + '/*/*/*.png')
     labelFiles = glob.glob(dirLabels + '/*/*/*.txt')
 
     # Get list of all labeled images:
     # Convert label filenames to image filenames
-    # Label like: CKPlus/CKPlus_Labels/S005/001/S005_001_00000011_emotion.txt
-    # Image like: CKPlus/CKPlus_Images/S005/001/S005_001_00000011.png
+    # Label looks like: CK_Plus/CKPlus_Labels/S005/001/S005_001_00000011_emotion.txt
+    # Image looks like: CK_Plus/CKPlus_Images/S005/001/S005_001_00000011.png
     allLabeledImages = []
 
     for label in labelFiles:
@@ -145,7 +145,10 @@ def importCKPlusDataset(dir = 'CKPlus', categories = None, includeNeutral = Fals
         curLabel = labelFiles[ind]
         curImage = allLabeledImages[ind]
 
+        # Open the image as binary read-only
         with open(curLabel, 'rb') as csvfile:
+
+            # Convert filestream to csv-reading filestream
             rd = csv.reader(csvfile)
             str = rd.next()
 
@@ -224,7 +227,8 @@ def importDataset(dir, dataset, categories):
             labels.append(jaffe_categories_map[key])
 
     elif dataset.lower() == 'ckplus':
-        imgList, labels = importCKPlusDataset(dir, categories=categories,includeNeutral=True,contemptAs=None)
+        # Pathnames and labels for all images
+        imgList, labels = importCKPlusDataset(dir, categories=categories,includeNeutral=False,contemptAs=None)
 
     elif dataset.lower() == 'misc':
         labels = [0,1,2,3,4,5,6]
