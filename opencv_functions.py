@@ -36,6 +36,15 @@ def DetectFace(image, color, faceCascades, second_pass, draw_rects):
         gray_img = img.copy()
     cv.equalizeHist(gray_img, gray_img)
 
+
+    # Eliminate spurious extra faces
+    discardExtraFaces = False   # Set to true to enable
+    if discardExtraFaces and faces.shape[0] > 1:
+        faces = faces[0,:]
+        faces = faces[np.newaxis,:]
+
+
+
     # Detect the faces
     faces = faceCascades[2].detectMultiScale(
         gray_img,

@@ -26,9 +26,9 @@ from utility_functions import *
 
 # List your dataset root directories here:
 dirJaffe = 'datasets/jaffe'
-dirCKPlus = None  # TODO
+dirCKPlus = 'CKPlus'
 dirMisc = 'datasets/misc'
-# dirOther ... TODO: allow any generic directory of pictures
+#dirOther = '' # TODO: allow any generic directory of pictures
 
 # Select which dataset to use (case insensitive):
 dataset = 'jaffe'
@@ -47,6 +47,9 @@ if dataset.lower() == 'jaffe':
 elif dataset.lower() == 'misc':
     dir = dirMisc
     color = True
+elif dataset.lower() == 'ckplus':
+	dir = dirCKPlus
+	color = True
 else:
     print 'Error - Unsupported dataset: ' + dataset
     sys.exit(0)
@@ -62,9 +65,20 @@ categories = [ 'Angry' , 'Disgust' , 'Fear' , 'Happy'  , 'Neutral' ,  'Sad' , 'S
 input_list, labels = importDataset(dir, dataset, categories)
 
 # Perform detection and cropping if desired (and it should be desired)
+crop_time = None
 if cropFlag:
+    start = time.time()
     mkdir(dirCrop)
     input_list = faceCrop(dirCrop, input_list, color)
+    crop_time = time.time() - start
 
 # Perform classification
-classify_emotions(input_list, categories, labels, plot_neurons=False, plot_confusion=True)
+start = time.time()
+classify_emotions(input_list, categories, labels, plot_neurons=False, plot_confusion=False)
+classify_time = time.time() - start
+
+print 'Total images:        ' + str(len(input_list)) 
+if crop_time is not None:
+	print 'Total crop time:     ' + str(crop_time) + 's\t(' + str(crop_time/len(input_list)) + "s / image)"
+print 'Total classify time: ' + str(classify_time) + 's\t(' + str(classify_time/len(input_list)) + "s / image)"
+
