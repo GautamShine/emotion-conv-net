@@ -109,9 +109,35 @@ def make_net(mean=None, net_dir='VGG_S_rgb'):
                        image_dims=(256, 256))
     return VGG_S_Net
 
+# Load a minibatch of images
+def load_minibatch(input_list,labels,start,num):
+    # Enforce maximum on start
+    start = max(0,start)
+
+    # Enforce minimum on end
+    end = start + num
+    end = min(len(input_list), end)
+
+    # Isolate files
+    files = input_list[start:end]
+
+    images = []
+    for file in files:
+        img = caffe.io.load_image(file)
+
+        # Handle incorrect image dims for uncropped images
+        # TODO: Get uncropped images to import correctly
+        if img.shape[0] == 3:
+            img = np.swapaxes(np.swapaxes(img, 0, 1), 1, 2)
+
+        images.append(img)
+
+    labelsReduced = labels[start:end]
+    return images, labelsReduced
+
 # Classify all images in a list of image file names
 # No return value, but can display outputs if desired
-def classify_emotions(input_list, categories, labels, plot_neurons, plot_confusion):
+def classify_emotions(input_list, categories, labels, plot_neurons=False, plot_confusion=False):
     # Compute mean
     mean = compute_mean(input_list)
 
@@ -123,24 +149,76 @@ def classify_emotions(input_list, categories, labels, plot_neurons, plot_confusi
 
     numImages = len(input_list);
 
-    for i in range(numImages):
-        img_file = input_list[i]
-        label = labels[i]
+    miniBatch=True
+    if miniBatch:
+        i = 0
+        batchSize = 500;
+    
+        metrics = [] # Will hold tuples of timing metrics for all batches
 
-        print 'File name: ' + img_file;
-        input_image = caffe.io.load_image(img_file)
+        while i < numImages:
+            t = time.time()
+            images,labelsReduced = load_minibatch(input_list,labels,i,batchSize)
+            loadTime = time.time() - t
 
-        # Handle incorrect image dims for uncropped images
-        # TODO: Get uncropped images to import correctly
-        if input_image.shape[0] == 3:
-            input_image = np.swapaxes(np.swapaxes(input_image, 0, 1), 1, 2)
-        prediction = VGG_S_Net.predict([input_image], oversample=False)
+            #print 'Batch of  ' + str(len(images)) + '  images.'
+            
+            t = time.time()
+            prediction = VGG_S_Net.predict(images, oversample=False)
+            predictTime = time.time() - t
 
-        # Append (label, prediction) tuple to confusion matrix list
-        conf_mat.append((label, prediction.argmax()))
+            for j in range(len(prediction)):
+                pred = prediction[j]
+                lab = labelsReduced[j]
 
-        # Print results as:  Filename: Prediction
-        print(img_file.split('/')[-1] + ': ' + categories[prediction.argmax()])
+                # Append (label, prediction) tuple to confusion matrix list
+                conf_mat.append((lab, pred.argmax()))
+
+                # Print results as:  Filename: Prediction
+                #print(input_list[i+j].split('/')[-1] + ': ' + categories[prediction.argmax()])
+
+            # Save timing metrics
+            metrics.append((len(images), loadTime, predictTime))
+
+            i += batchSize
+
+        # Print all timing metrics
+        print "\nTiming data for classify_emotions() (minibatch mode):"
+        for i in range(len(metrics)):
+            bs, ltime, ptime = metrics[i]
+            print "Batch " + str(i) + " (" + str(bs) + " images):\tLoad: " + str(ltime) + "s\t Predict: " + str(ptime) + "s"
+        print " "
+    else:
+        loadTime, predictTime = 0, 0
+
+        for i in range(numImages):
+            img_file = input_list[i]
+            label = labels[i]
+
+            print 'File name: ' + img_file;
+            t = time.time()
+            input_image = caffe.io.load_image(img_file)
+            loadTime += time.time() - t
+
+            # Handle incorrect image dims for uncropped images
+            # TODO: Get uncropped images to import correctly
+            if input_image.shape[0] == 3:
+                input_image = np.swapaxes(np.swapaxes(input_image, 0, 1), 1, 2)
+            t = time.time()
+            prediction = VGG_S_Net.predict([input_image], oversample=False)
+            predictTime += time.time() - t
+
+            # Append (label, prediction) tuple to confusion matrix list
+            conf_mat.append((label, prediction.argmax()))
+
+            # Print results as:  Filename: Prediction
+            print(img_file.split('/')[-1] + ': ' + categories[prediction.argmax()])
+
+        # Print timing metrics:
+        print "\nTiming data for classify_emotions() (serial mode):"
+        print "Load time:   " + str(loadTime)    + "s\t(" + str(loadTime/numImages)    + "s / image)"
+        print "Predict time:" + str(predictTime) + "s\t(" + str(predictTime/numImages) + "s / image)"
+        print " "
 
     if plot_neurons:
         layer = 'conv1'
