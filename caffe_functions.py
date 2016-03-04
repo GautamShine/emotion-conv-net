@@ -124,7 +124,7 @@ def load_minibatch(input_list, color, labels, start,num):
     images = []
     for file in files:
         img = caffe.io.load_image(file, color)
-
+        
         # Handle incorrect image dims for uncropped images
         # TODO: Get uncropped images to import correctly
         if img.shape[0] == 3 or img.shape[0] == 1:
@@ -244,3 +244,31 @@ def classify_emotions(input_list, color, categories, labels, plot_neurons, plot_
 
     # Generates confusion matrix and calculates accuracy
     confusion_matrix(conf_mat, categories, plot_confusion)
+
+
+# Classify all faces in a single video frame
+# Return a labels list of integer labels
+def classify_video_frame(frame, faces, VGG_S_Net, categories=None):
+    # Handle incorrect image dims for uncropped images
+    # TODO: Get uncropped images to import correctly
+    #if frame.shape[0] == 3:
+    #    frame = np.swapaxes(np.swapaxes(frame, 0, 1), 1, 2)
+
+
+    # Convert to float format:
+    frame = frame.astype(np.float32)
+    frame /= 255.0
+
+    labels = []
+
+    for x,y,w,h in faces:
+        img = frame[y:y+h,x:x+w,:]
+
+        # Input image should be WxHxK, e.g. 490x640x3
+        prediction = VGG_S_Net.predict([img], oversample=False)
+
+
+        labels.append(prediction.argmax())
+
+    return labels
+

@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import cv2 as cv
 import Image
 import caffe
+from opencv_functions import *
 
 # Plot confusion matrix
 def plot_confusion_matrix(cm, names=None, title='Confusion Matrix', cmap=plt.cm.Blues):
@@ -268,3 +269,36 @@ def mkdir(dir):
 
 def flatten(biglist):
     return [item for sublist in biglist for item in sublist]
+
+
+
+# Load an image whose array elements are in uint8 format
+# Caffe imports images in float format...elements vary from 0.0 to 1.0
+# OpenCV Webcam brings in images in uint8 format...elements range from 0 to 255
+def loadUintImage(imgFile):
+  img = toggleRGB(caffe.io.load_image(imgFile))
+  img *= 255.0
+  img = img.astype(np.uint8)
+  return img
+
+# Load an emoji according to the desired category
+def loadEmoji(ind=3):
+  categories = [ 'Angry' , 'Disgust' , 'Fear' , 'Happy'  , 'Neutral' ,  'Sad' , 'Surprise']
+  emojiFile = 'datasets/Emojis/' + categories[ind] + '.png'
+  emoji = loadUintImage(emojiFile)
+  return emoji
+
+# Load all emojis into a list
+def loadAllEmojis(emojiDir=None, categories=None):
+    if emojiDir is None:
+        emojiDir = 'datasets/Emojis/'
+    if categories is None:
+        categories = [ 'Angry' , 'Disgust' , 'Fear' , 'Happy'  , 'Neutral' ,  'Sad' , 'Surprise']
+  
+    emojis = []
+    for cat in categories:
+        emojiFile = emojiDir + cat + ".png"
+        emojis.append(loadUintImage(emojiFile))
+
+    return emojis
+    

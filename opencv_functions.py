@@ -45,7 +45,7 @@ def DetectFace(image,color,faceCascades,single_face,second_pass,draw_rects):
         flags = cv.CASCADE_SCALE_IMAGE)
 
     # Eliminate spurious extra faces
-    discardExtraFaces = True   # Set to true to enable
+    discardExtraFaces = False   # Set to true to enable
     if discardExtraFaces and faces.shape[0] > 1:
         faces = faces[0,:]
         faces = faces[np.newaxis,:]
@@ -133,3 +133,66 @@ def faceCrop(targetDir, imgList, color, single_face):
             n += 1
 
     return face_list
+
+# Add an emoji to an image at a specified point and size
+# Inputs: img, emoji are ndarrays of WxHx3
+#         faces is a list of (x,y,w,h) tuples for each face to be replaced
+def addEmoji(img,faces,emoji):
+  for x,y,w,h in faces:
+    # Resize emoji to desired width and height
+    dim = max(w,h)
+    em = cv.resize(emoji, (dim,dim), interpolation = cv.INTER_CUBIC)
+
+    # Get boolean for transparency
+    trans = em.copy()
+    trans[em == 0] = 1
+    trans[em != 0] = 0
+
+    # Delete all pixels in image where emoji is nonzero
+    img[y:y+h,x:x+w,:] *= trans
+
+    # Add emoji on those pixels
+    img[y:y+h,x:x+w,:] += em
+
+  return img
+
+# Add emojis to image at specified points and sizes
+# Inputs: img is ndarrays of WxHx3
+#         emojis is a list of WxHx3 emoji arrays
+#         faces is a list of (x,y,w,h) tuples for each face to be replaced
+#         Labels is a list of integer labels for each emotion
+def addMultipleEmojis(img,faces,emojis,labels):
+    categories = [ 'Angry' , 'Disgust' , 'Fear' , 'Happy'  , 'Neutral' ,  'Sad' , 'Surprise']
+    
+    for i in range(len(labels)):
+
+        x,y,w,h = faces[i]
+        label = labels[i]
+        emoji = emojis[int(label)]
+
+
+        # Resize emoji to desired width and height
+        dim = max(w,h)
+        em = cv.resize(emoji, (dim,dim), interpolation = cv.INTER_CUBIC)
+
+        # Get boolean for transparency
+        trans = em.copy()
+        trans[em == 0] = 1
+        trans[em != 0] = 0
+
+        # Delete all pixels in image where emoji is nonzero
+        img[y:y+h,x:x+w,:] *= trans
+
+        # Add emoji on those pixels
+        img[y:y+h,x:x+w,:] += em
+
+    return img
+
+
+# Switch between RGB and BGR
+def toggleRGB(img):
+  r,g,b = cv.split(img)
+  img = cv.merge([b,g,r])
+  return img
+
+
