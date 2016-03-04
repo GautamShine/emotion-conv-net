@@ -13,18 +13,18 @@ from utility_functions import *
 
 def load_cascades():
     # Load Haar cascade files containing features
-    cascPaths = ['haarcascades/haarcascade_frontalface_default.xml',
-                 'haarcascades/haarcascade_frontalface_alt.xml',
-                 'haarcascades/haarcascade_frontalface_alt2.xml',
-                 'haarcascades/haarcascade_frontalface_alt_tree.xml'
-                 'lbpcascades/lbpcascade_frontalface.xml']
+    cascPaths = ['models/haarcascades/haarcascade_frontalface_default.xml',
+                 'models/haarcascades/haarcascade_frontalface_alt.xml',
+                 'models/haarcascades/haarcascade_frontalface_alt2.xml',
+                 'models/haarcascades/haarcascade_frontalface_alt_tree.xml'
+                 'models/lbpcascades/lbpcascade_frontalface.xml']
     faceCascades = []
     for casc in cascPaths:
         faceCascades.append(cv.CascadeClassifier(casc))
 
     return faceCascades
 
-def DetectFace(image, color, faceCascades, second_pass, draw_rects):
+def DetectFace(image,color,faceCascades,single_face,second_pass,draw_rects):
     # Resize
     img = cv.resize(image, (0,0), fx=1, fy=1, interpolation = cv.INTER_CUBIC)
 
@@ -33,17 +33,8 @@ def DetectFace(image, color, faceCascades, second_pass, draw_rects):
         gray_img = img.copy().astype(np.uint8)
         gray_img = cv.cvtColor(gray_img, cv.COLOR_BGR2GRAY)
     else:
-        gray_img = img.copy()
+        gray_img = img.copy().astype(np.uint8)
     cv.equalizeHist(gray_img, gray_img)
-
-
-    # Eliminate spurious extra faces
-    discardExtraFaces = False   # Set to true to enable
-    if discardExtraFaces and faces.shape[0] > 1:
-        faces = faces[0,:]
-        faces = faces[np.newaxis,:]
-
-
 
     # Detect the faces
     faces = faceCascades[2].detectMultiScale(
@@ -58,6 +49,11 @@ def DetectFace(image, color, faceCascades, second_pass, draw_rects):
     if draw_rects:
         for (x, y, w, h) in faces:
             cv.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+
+    # For laboratory images, remove any spurious detections
+    if single_face and len(faces) > 1:
+        faces = faces[0,:]
+        faces = faces[np.newaxis,:]
 
     if len(faces) > 0 and second_pass:
         approved = []
@@ -95,7 +91,7 @@ def rgb(bgr_img):
 
 # Given directory loc, get all images in directory and crop to just faces
 # Returns face_list, an array of cropped image file names
-def faceCrop(targetDir, imgList, color=True):
+def faceCrop(targetDir, imgList, color, single_face):
     # Load list of Haar cascades for faces
     faceCascades = load_cascades()
 
@@ -109,7 +105,12 @@ def faceCrop(targetDir, imgList, color=True):
             cv_img  = cv.cvtColor(np.array(pil_img), cv.COLOR_RGB2BGR)
         else:
             cv_img = np.array(pil_img)
-        scaled_img, faces = DetectFace(cv_img, color, faceCascades, second_pass=False, draw_rects=False)
+            # Convert to grayscale if this image is actually color
+            if cv_img.ndim == 3:
+                cv_img = cv.cvtColor(np.array(pil_img), cv.COLOR_BGR2GRAY)
+
+        # Detect all faces in this image
+        scaled_img, faces = DetectFace(cv_img, color, faceCascades, single_face, second_pass=False, draw_rects=False)
 
         # Iterate through faces
         n=1

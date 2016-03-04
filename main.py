@@ -26,12 +26,13 @@ from utility_functions import *
 
 # List your dataset root directories here:
 dirJaffe = 'datasets/jaffe'
-dirCKPlus = 'CKPlus'
+dirCKPlus = 'datasets/CK_Plus'
 dirMisc = 'datasets/misc'
-#dirOther = '' # TODO: allow any generic directory of pictures
+# dirOther ... TODO: allow any generic directory of pictures
 
 # Select which dataset to use (case insensitive):
 dataset = 'jaffe'
+dataset = 'ckplus'
 #dataset = 'misc'
 
 # Flags:
@@ -44,19 +45,22 @@ dir = None
 if dataset.lower() == 'jaffe':
     dir = dirJaffe
     color = False
+    single_face = True
+elif dataset.lower() == 'ckplus':
+    dir = dirCKPlus
+    color = False
+    single_face = True
 elif dataset.lower() == 'misc':
     dir = dirMisc
     color = True
-elif dataset.lower() == 'ckplus':
-	dir = dirCKPlus
-	color = True
+    single_face = False
 else:
     print 'Error - Unsupported dataset: ' + dataset
     sys.exit(0)
 
 # Clean up and discard anything from the last run
-dirCrop = dir + '/cropped';
-rmdir(dirCrop);
+dirCrop = dir + '/cropped'
+rmdir(dirCrop)
 
 # Master list of categories for EmotitW network
 categories = [ 'Angry' , 'Disgust' , 'Fear' , 'Happy'  , 'Neutral' ,  'Sad' , 'Surprise']
@@ -65,20 +69,16 @@ categories = [ 'Angry' , 'Disgust' , 'Fear' , 'Happy'  , 'Neutral' ,  'Sad' , 'S
 input_list, labels = importDataset(dir, dataset, categories)
 
 # Perform detection and cropping if desired (and it should be desired)
-crop_time = None
 if cropFlag:
     start = time.time()
     mkdir(dirCrop)
-    input_list = faceCrop(dirCrop, input_list, color)
+    input_list = faceCrop(dirCrop, input_list, color, single_face)
     crop_time = time.time() - start
 
 # Perform classification
 start = time.time()
-classify_emotions(input_list, categories, labels, plot_neurons=False, plot_confusion=False)
+classify_emotions(input_list, color, categories, labels, plot_neurons=False, plot_confusion=True)
 classify_time = time.time() - start
 
-print 'Total images:        ' + str(len(input_list)) 
-if crop_time is not None:
-	print 'Total crop time:     ' + str(crop_time) + 's\t(' + str(crop_time/len(input_list)) + "s / image)"
-print 'Total classify time: ' + str(classify_time) + 's\t(' + str(classify_time/len(input_list)) + "s / image)"
-
+print 'Crop time: ' + str(crop_time) + 's'
+print 'Classify time: ' + str(classify_time) + 's'
