@@ -196,6 +196,10 @@ def importCKPlusDataset(dir = 'CKPlus', categories = None, includeNeutral = Fals
     else:
         images = labeledImages
 
+    # For testing only:
+    #images = images[0:10]
+    #labels = labels[0:10]
+
     return images, labels #, labelNames
 
 # Get entire dataset
@@ -228,7 +232,7 @@ def importDataset(dir, dataset, categories):
 
     elif dataset.lower() == 'ckplus':
         # Pathnames and labels for all images
-        imgList, labels = importCKPlusDataset(dir, categories=categories,includeNeutral=False,contemptAs=None)
+        imgList, labels = importCKPlusDataset(dir, categories=categories,includeNeutral=True,contemptAs=None)
 
     elif dataset.lower() == 'misc':
         labels = [0,1,2,3,4,5,6]

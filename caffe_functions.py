@@ -127,8 +127,17 @@ def load_minibatch(input_list, color, labels, start,num):
 
         # Handle incorrect image dims for uncropped images
         # TODO: Get uncropped images to import correctly
-        if img.shape[0] == 3:
+        if img.shape[0] == 3 or img.shape[0] == 1:
             img = np.swapaxes(np.swapaxes(img, 0, 1), 1, 2)
+        
+        # BUG FIX: Is this ok?
+        # color=True gets the correct desired dimension of WxHx3
+        # But color=False gets images of WxHx1. Need WxHx3 or will get "Index out of bounds" exception
+        # Fix by concatenating three copies of the image
+        if img.shape[2] == 1:
+            img = cv.merge([img,img,img])
+
+        # Add image array to batch
         images.append(img)
 
     labelsReduced = labels[start:end]
@@ -148,14 +157,29 @@ def classify_emotions(input_list, color, categories, labels, plot_neurons, plot_
 
     numImages = len(input_list)
 
-    miniBatch = False
+    miniBatch = True
     if miniBatch:
         i = 0
         batchSize = 500
+
+        metrics = [] # Will hold tuples of timing metrics for all batches
+
+        totalLoad, totalPredict = 0, 0
+
         while i < numImages:
+
+            t = time.time()
             images,labelsReduced = load_minibatch(input_list, color, labels, i, batchSize)
+            loadTime = time.time() - t
+            totalLoad += loadTime
             print 'Batch of  ' + str(len(images)) + '  images.'
+
+            # images is a list of input images
+            # Input images should be WxHx3, e.g. 490x640x3
+            t = time.time()
             prediction = VGG_S_Net.predict(images, oversample=False)
+            predictTime = time.time() - t
+            totalPredict += predictTime
 
             for j in range(len(prediction)):
                 pred = prediction[j]
@@ -165,28 +189,54 @@ def classify_emotions(input_list, color, categories, labels, plot_neurons, plot_
                 conf_mat.append((lab, pred.argmax()))
 
                 # Print results as Filename: Prediction
-                print(input_list[i+j].split('/')[-1]+': '+categories[prediction.argmax()])
+                #print(input_list[i+j].split('/')[-1]+': '+categories[prediction.argmax()])
 
+            metrics.append((len(images),loadTime,predictTime))
             i += batchSize
+        
+        # Print all timing metrics
+        print "\nTiming data for classify_emotions() (minibatch mode):"
+        for i in range(len(metrics)):
+            bs, ltime, ptime = metrics[i]
+            print "Batch " + str(i) + " (" + str(bs) + " images):\tLoad: " + str(ltime) + "s\t Predict: " + str(ptime) + "s"
+        print "\nTotal images: " + str(len(input_list))
+        print "Total time loading: " + str(totalLoad) + "\t(" + str(float(totalLoad)/len(input_list)) + "s / image)"
+        print "Total time predicting: " + str(totalPredict) + "\t(" + str(float(totalPredict)/len(input_list)) + "s / image)"
+        print " "
+
     else:
+        loadTime, predictTime = 0, 0
+
         for i in range(numImages):
             img_file = input_list[i]
             label = labels[i]
 
             print('File name: ', img_file)
+            t = time.time()
             input_image = caffe.io.load_image(img_file)
+            loadTime += time.time() - t
 
             # Handle incorrect image dims for uncropped images
             # TODO: Get uncropped images to import correctly
             if input_image.shape[0] == 3:
                 input_image = np.swapaxes(np.swapaxes(input_image, 0, 1), 1, 2)
+
+            # Input image should be WxHxK, e.g. 490x640x3
+            t = time.time()
             prediction = VGG_S_Net.predict([input_image], oversample=False)
+            predictTime += time.time() - t
 
             # Append (label, prediction) tuple to confusion matrix list
             conf_mat.append((label, prediction.argmax()))
 
             # Print results as Filename: Prediction
             print(img_file.split('/')[-1]+': '+categories[prediction.argmax()])
+
+        # Print timing metrics:
+        print "\nTiming data for classify_emotions() (serial mode):"
+        print "Load time:   " + str(loadTime)    + "s\t(" + str(loadTime/numImages)    + "s / image)"
+        print "Predict time:" + str(predictTime) + "s\t(" + str(predictTime/numImages) + "s / image)"
+        print " "
 
     if plot_neurons:
         layer = 'conv1'

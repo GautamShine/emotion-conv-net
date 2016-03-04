@@ -44,6 +44,12 @@ def DetectFace(image,color,faceCascades,single_face,second_pass,draw_rects):
         minSize=(50, 50),
         flags = cv.CASCADE_SCALE_IMAGE)
 
+    # Eliminate spurious extra faces
+    discardExtraFaces = True   # Set to true to enable
+    if discardExtraFaces and faces.shape[0] > 1:
+        faces = faces[0,:]
+        faces = faces[np.newaxis,:]
+
     print('Detected %d faces.' % len(faces))
     # Draw a rectangle around the faces
     if draw_rects:

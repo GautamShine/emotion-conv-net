@@ -36,7 +36,8 @@ dataset = 'ckplus'
 #dataset = 'misc'
 
 # Flags:
-cropFlag = False # False disables image cropping
+cropFlag = True # False disables image cropping
+plot_confusion = False
 
 ### START SCRIPT: ###
 
@@ -65,6 +66,9 @@ rmdir(dirCrop)
 # Master list of categories for EmotitW network
 categories = [ 'Angry' , 'Disgust' , 'Fear' , 'Happy'  , 'Neutral' ,  'Sad' , 'Surprise']
 
+# Start keeping time:
+t0 = time.time()
+
 # Load dataset image list
 input_list, labels = importDataset(dir, dataset, categories)
 
@@ -79,10 +83,12 @@ if cropFlag:
 
 # Perform classification
 start = time.time()
-classify_emotions(input_list, color, categories, labels, plot_neurons=False, plot_confusion=True)
+classify_emotions(input_list, color, categories, labels, plot_neurons=False, plot_confusion=plot_confusion)
 classify_time = time.time() - start
+totalTime = time.time() - t0
 
-print 'Number of images: ' + str(len(input_list))
+print '\nNumber of images: ' + str(len(input_list))
 if crop_time is not None:
-    print 'Crop time: ' + str(crop_time) + 's'
-print 'Classify time: ' + str(classify_time) + 's'
+    print 'Crop time: ' + str(crop_time) + 's\t(' + str(crop_time / len(input_list)) + "s / image)"
+print 'Classify time: ' + str(classify_time) + 's\t(' + str(classify_time / len(input_list)) + "s / image)"
+print 'Total time: ' + str(totalTime) + 's\t(' + str(totalTime / len(input_list)) + "s / image)"
