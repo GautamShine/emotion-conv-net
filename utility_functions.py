@@ -57,14 +57,11 @@ def confusion_matrix(results, categories, plotConfusion=False):
 # Inputs: Dataset root directory; optional dataset name
 # Returns: List of all image file paths; list of correct labels for each image
 def importDataset(dir, dataset, categories):
-    imgList = None;
-    labels = None;
+    imgList = glob.glob(dir+'/*')
+    labels = None
 
     # Datset-specific import rules:
     if dataset.lower() == 'jaffe':
-        # Get Jaffe file names
-        imgList = glob.glob(dir+'/*')
-
         # Get Jaffe labels
         jaffe_categories_map = {
             'HA': categories.index('Happy'),
@@ -79,9 +76,12 @@ def importDataset(dir, dataset, categories):
         labels = [];
 
         for img in imgList:
+            if os.path.isdir(img):
+                continue
             key = img.split('.')[1][0:2]
             labels.append(jaffe_categories_map[key]);
-
+    elif dataset.lower() == 'misc':
+        labels = [0,1,2,3,4,5,6]
     else:
         print 'Error - Unsupported dataset: ' + dataset;
         return None;
@@ -110,3 +110,6 @@ def mkdir(dir):
     if os.path.exists(dir):
         shutil.rmtree(dir)
     os.mkdir(dir)
+
+def flatten(biglist):
+    return [item for sublist in biglist for item in sublist]

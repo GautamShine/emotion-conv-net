@@ -27,10 +27,12 @@ from utility_functions import *
 # List your dataset root directories here:
 dirJaffe = 'datasets/jaffe'
 dirCKPlus = None  # TODO
+dirMisc = 'datasets/misc'
 # dirOther ... TODO: allow any generic directory of pictures
 
 # Select which dataset to use (case insensitive):
-dataset = 'jaffe';
+dataset = 'jaffe'
+#dataset = 'misc'
 
 # Flags:
 cropFlag = True # False disables image cropping
@@ -40,7 +42,11 @@ cropFlag = True # False disables image cropping
 # Set up inputs
 dir = None
 if dataset.lower() == 'jaffe':
-    dir = dirJaffe;
+    dir = dirJaffe
+    color = False
+elif dataset.lower() == 'misc':
+    dir = dirMisc
+    color = True
 else:
     print 'Error - Unsupported dataset: ' + dataset
     sys.exit(0)
@@ -55,14 +61,10 @@ categories = [ 'Angry' , 'Disgust' , 'Fear' , 'Happy'  , 'Neutral' ,  'Sad' , 'S
 # Load dataset image list
 input_list, labels = importDataset(dir, dataset, categories)
 
-# Load Haar cascade files containing features
-cascPath = 'haarcascade_frontalface_default.xml'
-faceCascade = cv.CascadeClassifier(cascPath)
-
 # Perform detection and cropping if desired (and it should be desired)
 if cropFlag:
     mkdir(dirCrop)
-    input_list = faceCrop(dirCrop, input_list, faceCascade, color=False)
+    input_list = faceCrop(dirCrop, input_list, color)
 
 # Perform classification
 classify_emotions(input_list, categories, labels, plot_neurons=False, plot_confusion=True)
