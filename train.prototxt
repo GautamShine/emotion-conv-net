@@ -37,6 +37,8 @@ layers {
     kernel_size: 7
     stride: 2
   }
+  blobs_lr: 0
+  blobs_lr: 0
 }
 layers {
   name: "relu1"
@@ -76,6 +78,8 @@ layers {
     pad: 2
     kernel_size: 5
   }
+  blobs_lr: 0
+  blobs_lr: 0
 }
 layers {
   name: "relu2"
@@ -104,6 +108,8 @@ layers {
     pad: 1
     kernel_size: 3
   }
+  blobs_lr: 0
+  blobs_lr: 0
 }
 layers {
   name: "relu3"
@@ -121,6 +127,8 @@ layers {
     pad: 1
     kernel_size: 3
   }
+  blobs_lr: 0
+  blobs_lr: 0
 }
 layers {
   name: "relu4"
@@ -138,6 +146,8 @@ layers {
     pad: 1
     kernel_size: 3
   }
+  blobs_lr: 0
+  blobs_lr: 0
 }
 layers {
   name: "relu5"
@@ -164,6 +174,8 @@ layers {
   inner_product_param {
     num_output: 4048
   }
+  blobs_lr: 1.0
+  blobs_lr: 1.0
 }
 layers {
   name: "relu6"
@@ -188,6 +200,8 @@ layers {
   inner_product_param {
     num_output: 4048
   }
+  blobs_lr: 1.0
+  blobs_lr: 1.0
 }
 layers {
   name: "relu7"
@@ -212,6 +226,8 @@ layers {
   inner_product_param {
     num_output: 7
   }
+  blobs_lr: 1.0
+  blobs_lr: 1.0
 }
 layers {
   name: "prob"
