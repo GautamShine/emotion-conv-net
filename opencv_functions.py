@@ -24,7 +24,7 @@ def load_cascades():
 
     return faceCascades
 
-def DetectFace(image,color,faceCascades,single_face,second_pass,draw_rects):
+def DetectFace(image,color,faceCascades,single_face,second_pass,draw_rects,scale=1.0):
     # Resize
     img = cv.resize(image, (0,0), fx=1, fy=1, interpolation = cv.INTER_CUBIC)
 
@@ -46,9 +46,18 @@ def DetectFace(image,color,faceCascades,single_face,second_pass,draw_rects):
 
     # Eliminate spurious extra faces
     discardExtraFaces = False   # Set to true to enable
-    if discardExtraFaces and faces.shape[0] > 1:
+    if discardExtraFaces and len(faces) > 1:
         faces = faces[0,:]
         faces = faces[np.newaxis,:]
+
+    # Rescale cropBox
+
+    if scale != 1.0 and len(faces) > 0:
+        for i in range(faces.shape[0]):
+            faces[i] = rescaleCropbox(img,faces[i],scale)
+
+
+
 
     print('Detected %d faces.' % len(faces))
     # Draw a rectangle around the faces
@@ -78,14 +87,68 @@ def DetectFace(image,color,faceCascades,single_face,second_pass,draw_rects):
         
     return img, faces
 
-# Crop image array to pixels indicated by crop box
-def imgCrop(img, cropBox, scale=1.0):
+# Resize cropBox
+def rescaleCropbox(img,cropBox,scale=1.0):
     x, y, w, h = cropBox
-    if scale != 1.0:
+
+    # Check for valid box sizes
+    if scale <= 0:
+        # Invalid input. Return original
+        return cropBox
+
+
+    if scale < 1.0:
         x += int(w*(1-scale)/2)
         y += int(h*(1-scale)/2)
         w = int(w*scale)
         h = int(h*scale)
+
+    elif scale > 1.0:
+        x -= int(w*(scale-1.0)/2)
+        y -= int(h*(scale-1.0)/2)
+        w = int(w*scale)
+        h = int(h*scale)
+
+        # Make sure dimensions won't be exceeded:
+        exceeded = False; count = 0; maxCount = 10 # Arbitrary magic number
+        while True:
+            if x < 0:
+                w += 2*x # Make w smaller to maintain symmetry
+                x = 0
+
+            if y < 0:
+                h += 2*y
+                y = 0
+                exceeded = True
+            
+            if x+w > img.shape[1]:
+                x -= x + w - img.shape[1]
+                exceeded = True
+            
+            if y+h > img.shape[0]:
+                y -= y + h - img.shape[0]
+                exceeded = True
+            
+            if count > maxCount:
+                # Rescaling has failed. Just return original image
+                print "Error: opencv_functions.imgCrop: Crop scale exceeded image dimensions"
+                return cropBox
+
+            if not exceeded:
+                # Rescaling succeeded!
+                break
+            else:
+                count += 1
+                exceeded = False
+
+    # Return rescaled cropbox
+    return (x,y,w,h)
+
+
+# Crop image array to pixels indicated by crop box
+def imgCrop(img, cropBox, scale=1.0):
+    cropBox = rescaleCropbox(img,cropBox,scale)
+    (x,y,w,h) = cropBox
     img = img[y:(y+h), x:(x+h)]
     return img
 
