@@ -14,13 +14,13 @@ from PIL import Image
 
 
 # Filename format looks like:
-# training_data/0000000_A_HAP.png
+# training_data/0000000.HA.0.png
 # outDir is self-explanatory
-# counter gets converted into string of length strLength, with leading 0's
-# subCount is a letter label for jittered images
-# Label is the three-character emotion label
+# counter gets converted into string of length 7, with leading 0's
+# Label is the two-character emotion label
+# subCount is a number label for jittered images
 # Extension is the filetype
-def getFilename(counter,subCount=0,outDir=None,strLength=7,label='HAP',extension='.png'):
+def getFilename(counter,subCount=0,outDir=None,strLength=7,label='HA',extension='.png'):
   if outDir is None:
     outDir = ""
   else:
