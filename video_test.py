@@ -35,7 +35,7 @@ faceCascades = load_cascades()
 
 # Set up network
 mean = None
-#VGG_S_Net = make_net(mean)
+VGG_S_Net = make_net(mean,net_dir="Custom_Model")
 
 # Get all emojis
 emojis = loadAllEmojis()
@@ -73,7 +73,7 @@ while rval:
       pass
     else:
       # Toggle whether to do dynamic classification, or just to display one user-picked emoji
-      useCNN = False
+      useCNN = True
 
       if useCNN:
         # Get a label for each face
@@ -83,7 +83,7 @@ while rval:
         frame = addMultipleEmojis(frame,faces,emojis,labels)
         
         # Print first emotion detected
-        print categories[labels[0]]
+        #print categories[labels[0]]
 
       else:
         # Just use the smiley face (no CNN classification)
