@@ -10,6 +10,9 @@ from opencv_functions import *
 from utility_functions import *
 
 
+
+
+
 ################################################################################################
 #
 # TO DO:
@@ -24,12 +27,15 @@ from utility_functions import *
 
 categories = [ 'Angry' , 'Disgust' , 'Fear' , 'Happy'  , 'Neutral' ,  'Sad' , 'Surprise']
 
+plotSideBySide = True # Plot before/after images together?
+saveDir = 'test_screenshots' # Folder to save screenshots to
+
 # Set up face detection
 faceCascades = load_cascades()
 
 # Set up network
 mean = None
-VGG_S_Net = make_net(mean)
+#VGG_S_Net = make_net(mean)
 
 # Get all emojis
 emojis = loadAllEmojis()
@@ -57,15 +63,17 @@ while rval:
   detect = True
   if detect:
     # Find all faces
-    _, faces = DetectFace(frame,True,faceCascades,single_face=False,second_pass=False,draw_rects=False)
+    with nostdout():
+      _, faces = DetectFace(frame,True,faceCascades,single_face=False,second_pass=False,draw_rects=False)
     #frame = addEmoji(frame,faces,emoji)
 
+    oldFrame = frame.copy()
     if len(faces) == 0 or faces is None:
       # No faces found
       pass
     else:
       # Toggle whether to do dynamic classification, or just to display one user-picked emoji
-      useCNN = True
+      useCNN = False
 
       if useCNN:
         # Get a label for each face
@@ -83,7 +91,12 @@ while rval:
         frame = addEmoji(frame,faces,emojis[categoryIndex])
 
   # Show video with faces
-  cv.imshow("preview", frame)
+  if plotSideBySide:
+    img = cvCombineTwoImages(oldFrame,frame)
+    cv.imshow("preview", img)
+  else:
+    img = frame.copy()
+    cv.imshow("preview", img)
 
 
   # Read in next frame
@@ -93,5 +106,8 @@ while rval:
   key = cv.waitKey(20)
   if key == 27: # exit on ESC
     break
+  elif key == 115 or key == 83: # ASCII codes for s and S
+    filename = saveTestImage(img,outDir=saveDir)
+    print "Image saved to ./" + filename
 
 cv.destroyWindow("preview")

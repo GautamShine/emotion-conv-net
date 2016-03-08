@@ -57,7 +57,7 @@ def getRandomLabel(pickFrom=None):
 # Crop image and save to file
 def saveSingleImage(frame,file):
   # Save cropped image. Can also rescale cropbox
-  im = Image.fromarray(frame)
+  im = Image.fromarray(toggleRGB(frame))
   im.save(file)
 
 # Crop and save image, including adding jitter
@@ -83,7 +83,7 @@ def jitterImage(frame,faces):
   numShiftMax = 4;  # Number of shifted images to produce
   numColorMax = 6;  # Number of color-shifted images to produce
   maxShift = 0.1 # Maximum pixel displacement in x and y directions
-  maxColorShift = 40; # Raw pixel shift
+  maxColorShift = 30; # Raw pixel shift
 
   # Frame width and height
   fw = frame.shape[1]
@@ -116,7 +116,7 @@ def jitterImage(frame,faces):
   # Brighten or darken image uniformly
   # Raw pixel values are 0 to 255
   for i in range(numColorMax):
-    shift = random.randint(0,2*maxColorShift) - maxColorShift/4
+    shift = random.randint(0,2*maxColorShift) - maxColorShift/2
     ftmp = frame.astype(np.int) + shift
     
     # Make sure ftmp does not exceed 0 and 255
@@ -128,9 +128,6 @@ def jitterImage(frame,faces):
     frames.append(ftmp[yt:yt+h,xt:xt+w])
 
   return frames
-
-
-
 
 
 

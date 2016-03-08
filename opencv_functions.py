@@ -259,3 +259,52 @@ def toggleRGB(img):
   return img
 
 
+# Combine two images for displaying side-by-side
+def cvCombineTwoImages(img1,img2,buf=10):
+  h1, w1, c1 = img1.shape
+  h2, w2, c2 = img2.shape
+  
+  h = max(h1,h2)
+  w = w1 + w2 + buf
+  c = max(c1,c2)
+
+  if c1 != c2:
+    # Incompatible dimensions
+    print "Error, images have imcompatible dimensions along depth axis"
+    return None
+
+  img = np.zeros([h,w,c]).astype(np.uint8)
+
+  # Add in the two images
+  img[0:h1,0:w1,:] = img1
+  img[0:h2,w1+buf:w1+buf+w2,:] = img2
+
+  # Returned combined image as numpy array of uint8's
+  return img
+
+
+# Create a directory only if it does not already exist
+def mkdirNoForce(dir):
+    if not os.path.exists(dir):
+        os.mkdir(dir)
+
+
+# Save a test image with a default name from the current timestamp
+def saveTestImage(img,filename=None,outDir=None):
+  # Get image filename from current timestamp
+  if filename is None:
+    ts = time.time()
+    formatStr = "%Y-%m-%d_%H-%M-%S"
+    filestr = datetime.datetime.fromtimestamp(ts).strftime(formatStr)
+    filename = filestr + ".png"
+
+  if outDir is not None:
+    mkdirNoForce(outDir)
+    filename = outDir + "/" + filename
+
+  # Save image
+  im = Image.fromarray(toggleRGB(img))
+  im.save(filename)
+
+  # Return filename
+  return filename

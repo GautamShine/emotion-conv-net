@@ -8,7 +8,10 @@ import matplotlib.pyplot as plt
 import cv2 as cv
 import Image
 import caffe
+import datetime
+from PIL import Image
 from opencv_functions import *
+import contextlib, cStringIO
 
 # Plot confusion matrix
 def plot_confusion_matrix(cm, names=None, title='Confusion Matrix', cmap=plt.cm.Blues):
@@ -267,6 +270,15 @@ def mkdir(dir):
         shutil.rmtree(dir)
     os.mkdir(dir)
 
+
+# Create a directory only if it does not already exist
+def mkdirNoForce(dir):
+    if not os.path.exists(dir):
+        os.mkdir(dir)
+
+
+
+
 def flatten(biglist):
     return [item for sublist in biglist for item in sublist]
 
@@ -302,3 +314,15 @@ def loadAllEmojis(emojiDir=None, categories=None):
 
     return emojis
     
+
+# Suppress print statements within a function call
+# To use, write this:
+# with nostdout():
+#    yourfunction();
+@contextlib.contextmanager
+def nostdout():
+    save_stdout = sys.stdout
+    sys.stdout = cStringIO.StringIO()
+    yield
+    sys.stdout = save_stdout
+
