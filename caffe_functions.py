@@ -11,6 +11,14 @@ import caffe
 
 from utility_functions import *
 
+# Load mean caffe image
+def loadMeanCaffeImage(img="mean_training_image.binary_proto",curDir="datasets/"):
+  mean_filename=os.path.join(curDir,img)
+  proto_data = open(mean_filename, "rb").read()
+  a = caffe.io.caffe_pb2.BlobProto.FromString(proto_data)
+  mean  = caffe.io.blobproto_to_array(a)[0]
+  return mean
+
 # Display an image (input is numpy array)
 def showimage(img):
     if img.ndim == 3:

@@ -137,6 +137,9 @@ def jitterImage(frame,faces):
 #
 #################################################################################################
 
+# Pick mode (train or validate)
+validationMode = True
+
 # Pick output size in pixels, of all cropped images (images are all square)
 imgSize = 200;
 boxScale = 1.2 # Size of crop boxes (relative to original filter size)
@@ -145,9 +148,16 @@ jitter = True; # Jitter accepted images?
 # Initialize all labels
 categories = [ 'Angry' , 'Disgust' , 'Fear' , 'Happy'  , 'Neutral' ,  'Sad' , 'Surprise']
 suffixes   = [ 'AN',     'DI',       'FE',    'HA',       'NE',       'SA',   'SU']
-pickFrom   = [0, 1, 2, 3, 4, 5, 6] # Only prompt user for emotions in this list
-outDir     = 'training_images'
-counter    = 0 # Used to increment filenames
+pickFrom   = [  0,        1,          2,       3,          4,          5,      6 ] # Only prompt user for emotions in this list
+
+if validationMode:
+  jitter = False
+  outDir     = 'datasets/validation_images'
+else:
+  jitter = True
+  outDir     = 'datasets/training_images'
+
+counter    = 100 # Used to increment filenames
 
 # Output filename configuration:
 strLength = 7; # Length of output filename number string
