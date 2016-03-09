@@ -260,10 +260,24 @@ def toggleRGB(img):
 
 
 # Combine two images for displaying side-by-side
-def cvCombineTwoImages(img1,img2,buf=10):
+# If maxSize is true, crops sides of image to keep under 2880 pixel width of screen
+def cvCombineTwoImages(img1,img2,buf=2,maxSize=True):
   h1, w1, c1 = img1.shape
   h2, w2, c2 = img2.shape
   
+  screenWidth = 1920 # Width in pixels for macbook pro is 2880
+  margin = 40 # Minimum number of extra pixels to save
+
+  excess = w1 + w2 + buf - screenWidth + margin
+  if maxSize and excess > 0:
+    diff = int(np.ceil(float(excess)/4.0))
+
+    img1 = img1[:,diff:-diff,:]
+    img2 = img2[:,diff:-diff,:]
+
+    h1, w1, c1 = img1.shape
+    h2, w2, c2 = img2.shape
+
   h = max(h1,h2)
   w = w1 + w2 + buf
   c = max(c1,c2)
