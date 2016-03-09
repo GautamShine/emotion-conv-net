@@ -28,16 +28,19 @@ from utility_functions import *
 dirJaffe = 'datasets/jaffe'
 dirCKPlus = 'datasets/CK_Plus'
 dirMisc = 'datasets/misc'
+dirTraining = 'datasets/training_images'
 # dirOther ... TODO: allow any generic directory of pictures
 
 # Select which dataset to use (case insensitive):
-dataset = 'jaffe'
-dataset = 'ckplus'
+#dataset = 'jaffe'
+#dataset = 'ckplus'
+dataset = 'training'
 #dataset = 'misc'
 
 # Flags:
 cropFlag = True # False disables image cropping
-plot_confusion = False
+plot_confusion = True
+useMean = False # Use image mean during classification
 
 ### START SCRIPT: ###
 
@@ -47,14 +50,24 @@ if dataset.lower() == 'jaffe':
     dir = dirJaffe
     color = False
     single_face = True
+    cropFlag = True
+    useMean = False
 elif dataset.lower() == 'ckplus':
     dir = dirCKPlus
     color = False
     single_face = True
+    cropFlag = True
+    useMean = False
 elif dataset.lower() == 'misc':
     dir = dirMisc
     color = True
     single_face = False
+elif dataset.lower() == 'training':
+    dir = dirTraining
+    color = True
+    single_face = True
+    cropFlag = False
+    useMean = True
 else:
     print 'Error - Unsupported dataset: ' + dataset
     sys.exit(0)
@@ -83,7 +96,7 @@ if cropFlag:
 
 # Perform classification
 start = time.time()
-classify_emotions(input_list, color, categories, labels, plot_neurons=False, plot_confusion=plot_confusion)
+classify_emotions(input_list, color, categories, labels, plot_neurons=False, plot_confusion=plot_confusion, useMean=useMean)
 classify_time = time.time() - start
 totalTime = time.time() - t0
 
@@ -92,3 +105,5 @@ if crop_time is not None:
     print 'Crop time: ' + str(crop_time) + 's\t(' + str(crop_time / len(input_list)) + "s / image)"
 print 'Classify time: ' + str(classify_time) + 's\t(' + str(classify_time / len(input_list)) + "s / image)"
 print 'Total time: ' + str(totalTime) + 's\t(' + str(totalTime / len(input_list)) + "s / image)"
+
+

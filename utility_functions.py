@@ -54,12 +54,17 @@ def confusion_matrix(results, categories, plotConfusion=False):
     print 'Accuracy: ' +  str(accuracy*100) + '%'
 
     # Normalize confusion matrix
-    normalizeMatrix = False
+    normalizeMatrix = True
     if normalizeMatrix:
-        s = np.sum(matrix,1) # Sum each row
-        for i in range(matrix.shape[0]):
-            # Normalization handles class imbalance in training set
-            matrix[i,:] /= s[i]
+      print "utility.confusion_matrix(). Non-normalized conf_mat:"  
+      print matrix
+      s = np.sum(matrix,1) # Sum each row
+      for i in range(matrix.shape[0]):
+        # Normalization handles class imbalance in training set
+        matrix[i,:] /= s[i]
+
+    # Save matrix to file:
+    np.save("confusion_matrix.npy",matrix)
 
     # Plot the confusion matrix
     if plotConfusion:
@@ -214,7 +219,7 @@ def importDataset(dir, dataset, categories):
     labels = None
 
     # Datset-specific import rules:
-    if dataset.lower() == 'jaffe':
+    if dataset.lower() == 'jaffe' or dataset.lower() == 'training':
         # Get Jaffe labels
         jaffe_categories_map = {
             'HA': categories.index('Happy'),

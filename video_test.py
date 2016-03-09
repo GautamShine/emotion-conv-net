@@ -34,7 +34,8 @@ saveDir = 'test_screenshots' # Folder to save screenshots to
 faceCascades = load_cascades()
 
 # Set up network
-mean = None
+#mean = 'datasets/mean_training_image.binaryproto'
+mean = loadMeanCaffeImage()
 VGG_S_Net = make_net(mean,net_dir="Custom_Model")
 
 # Get all emojis
@@ -64,7 +65,7 @@ while rval:
   if detect:
     # Find all faces
     with nostdout():
-      _, faces = DetectFace(frame,True,faceCascades,single_face=False,second_pass=False,draw_rects=False)
+      _, faces = DetectFace(frame,True,faceCascades,single_face=False,second_pass=False,draw_rects=False,scale=1.0)
     #frame = addEmoji(frame,faces,emoji)
 
     oldFrame = frame.copy()

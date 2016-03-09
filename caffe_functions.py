@@ -12,7 +12,7 @@ import caffe
 from utility_functions import *
 
 # Load mean caffe image
-def loadMeanCaffeImage(img="mean_training_image.binary_proto",curDir="datasets/"):
+def loadMeanCaffeImage(img="mean_training_image.binaryproto",curDir="datasets/"):
   mean_filename=os.path.join(curDir,img)
   proto_data = open(mean_filename, "rb").read()
   a = caffe.io.caffe_pb2.BlobProto.FromString(proto_data)
@@ -153,19 +153,24 @@ def load_minibatch(input_list, color, labels, start,num):
 
 # Classify all images in a list of image file names
 # No return value, but can display outputs if desired
-def classify_emotions(input_list, color, categories, labels, plot_neurons, plot_confusion):
+def classify_emotions(input_list, color, categories, labels, plot_neurons, plot_confusion,useMean=True):
     # Compute mean
-    mean = compute_mean(input_list)
+    #mean = compute_mean(input_list)
+    if useMean:
+      mean = loadMeanCaffeImage()
+    else:
+      mean = None
+
 
     # Create VGG_S net with mean
-    VGG_S_Net = make_net(mean)
-
+    VGG_S_Net = make_net(mean,net_dir='Custom_Model')
+    
     # Classify images in directory
     conf_mat = [] # tuples to be passed to confusion matrix generator
 
     numImages = len(input_list)
 
-    miniBatch = True
+    miniBatch = False
     if miniBatch:
         i = 0
         batchSize = 500
