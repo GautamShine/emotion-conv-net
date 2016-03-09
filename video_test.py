@@ -30,13 +30,19 @@ categories = [ 'Angry' , 'Disgust' , 'Fear' , 'Happy'  , 'Neutral' ,  'Sad' , 'S
 plotSideBySide = True # Plot before/after images together?
 saveDir = 'test_screenshots' # Folder to save screenshots to
 
+useCNN = True # Set to false to simply display the default emoji
+defaultEmoji = 2 # Index of default emoji (0-6)
+
+
+### START SCRIPT ###
+
 # Set up face detection
 faceCascades = load_cascades()
 
 # Set up network
-#mean = 'datasets/mean_training_image.binaryproto'
-mean = loadMeanCaffeImage()
-VGG_S_Net = make_net(mean,net_dir="Custom_Model")
+if useCNN:
+  mean = loadMeanCaffeImage()
+  VGG_S_Net = make_net(mean,net_dir="Custom_Model")
 
 # Get all emojis
 emojis = loadAllEmojis()
@@ -74,7 +80,7 @@ while rval:
       pass
     else:
       # Toggle whether to do dynamic classification, or just to display one user-picked emoji
-      useCNN = True
+      useCNN = False
 
       if useCNN:
         # Get a label for each face
@@ -88,8 +94,7 @@ while rval:
 
       else:
         # Just use the smiley face (no CNN classification)
-        categoryIndex = 3  # Choose the index of the emotion category you wish to display (3=happy)
-        frame = addEmoji(frame,faces,emojis[categoryIndex])
+        frame = addEmoji(frame,faces,emojis[defaultEmoji])
 
   # Show video with faces
   if plotSideBySide:

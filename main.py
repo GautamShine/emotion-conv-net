@@ -28,7 +28,7 @@ from utility_functions import *
 dirJaffe = 'datasets/jaffe'
 dirCKPlus = 'datasets/CK_Plus'
 dirMisc = 'datasets/misc'
-dirTraining = 'datasets/training_images'
+dirTraining = 'datasets/validation_images'
 # dirOther ... TODO: allow any generic directory of pictures
 
 # Select which dataset to use (case insensitive):
@@ -51,13 +51,13 @@ if dataset.lower() == 'jaffe':
     color = False
     single_face = True
     cropFlag = True
-    useMean = False
+    useMean = True
 elif dataset.lower() == 'ckplus':
     dir = dirCKPlus
     color = False
     single_face = True
     cropFlag = True
-    useMean = False
+    useMean = True
 elif dataset.lower() == 'misc':
     dir = dirMisc
     color = True
