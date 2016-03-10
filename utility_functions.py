@@ -281,13 +281,9 @@ def mkdirNoForce(dir):
     if not os.path.exists(dir):
         os.mkdir(dir)
 
-
-
-
+# Flattens a list of lists to list
 def flatten(biglist):
     return [item for sublist in biglist for item in sublist]
-
-
 
 # Load an image whose array elements are in uint8 format
 # Caffe imports images in float format...elements vary from 0.0 to 1.0
@@ -319,7 +315,6 @@ def loadAllEmojis(emojiDir=None, categories=None):
 
     return emojis
     
-
 # Suppress print statements within a function call
 # To use, write this:
 # with nostdout():
@@ -330,4 +325,3 @@ def nostdout():
     sys.stdout = cStringIO.StringIO()
     yield
     sys.stdout = save_stdout
-

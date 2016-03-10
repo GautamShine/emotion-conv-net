@@ -12,7 +12,6 @@ from opencv_functions import *
 from utility_functions import *
 from PIL import Image
 
-
 # Filename format looks like:
 # training_data/0000000.HA.0.png
 # outDir is self-explanatory
@@ -38,7 +37,7 @@ def getFilename(counter,subCount=0,outDir=None,strLength=7,label='HA',extension=
 # Suppress print statements within a function call
 # Just call:
 # with nostdout():
-#    yourfunction();
+#    yourfunction()
 @contextlib.contextmanager
 def nostdout():
     save_stdout = sys.stdout
@@ -53,7 +52,6 @@ def getRandomLabel(pickFrom=None):
 
   return random.choice(pickFrom)
 
-
 # Crop image and save to file
 def saveSingleImage(frame,file):
   # Save cropped image. Can also rescale cropbox
@@ -62,7 +60,6 @@ def saveSingleImage(frame,file):
 
 # Crop and save image, including adding jitter
 def saveAcceptedImage(frame,faces,counter,outDir=None,strLength=7,label='HA',extension='.png',jitter=False):
-  
 
   if jitter:
     frames = jitterImage(frame,faces)
@@ -75,15 +72,14 @@ def saveAcceptedImage(frame,faces,counter,outDir=None,strLength=7,label='HA',ext
     saveSingleImage(frame,filename)
     subCount += 1
 
-
 # Jitter an image
 # Returns several jittered versions of the input image
 def jitterImage(frame,faces):
   # Define constants
-  numShiftMax = 4;  # Number of shifted images to produce
-  numColorMax = 6;  # Number of color-shifted images to produce
+  numShiftMax = 4  # Number of shifted images to produce
+  numColorMax = 6  # Number of color-shifted images to produce
   maxShift = 0.1 # Maximum pixel displacement in x and y directions
-  maxColorShift = 30; # Raw pixel shift
+  maxColorShift = 30 # Raw pixel shift
 
   # Frame width and height
   fw = frame.shape[1]
@@ -91,7 +87,7 @@ def jitterImage(frame,faces):
 
   x,y,w,h = faces[0]
 
-  frames = []; # Will hold output jittered images
+  frames = [] # Will hold output jittered images
 
   # Return original unjittered image
   frames.append(frame[y:y+h,x:x+h])
@@ -129,26 +125,18 @@ def jitterImage(frame,faces):
 
   return frames
 
-
-
-
-################################################################################################
-#
-#
-#################################################################################################
-
 # Pick mode (train or validate)
 validationMode = False
 
 # Pick output size in pixels, of all cropped images (images are all square)
-imgSize = 200;
+imgSize = 200
 boxScale = 1.2 # Size of crop boxes (relative to original filter size)
-jitter = True; # Jitter accepted images?
+jitter = True # Jitter accepted images?
 
 # Initialize all labels
-categories = [ 'Angry' , 'Disgust' , 'Fear' , 'Happy'  , 'Neutral' ,  'Sad' , 'Surprise']
-suffixes   = [ 'AN',     'DI',       'FE',    'HA',       'NE',       'SA',   'SU']
-pickFrom   = [                        2,                  4,          5       ] # Only prompt user for emotions in this list
+categories = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprise']
+suffixes   = ['AN', 'DI', 'FE', 'HA', 'NE', 'SA', 'SU']
+pickFrom   = [2, 4, 5] # Only prompt user for emotions in this list
 
 if validationMode:
   jitter = False
@@ -160,7 +148,7 @@ else:
 counter    = 300 # Used to increment filenames
 
 # Output filename configuration:
-strLength = 7; # Length of output filename number string
+strLength = 7 # Length of output filename number string
 extension = '.png' # Output file type
 
 # Check that outDir and counter are properly initialized
@@ -171,8 +159,8 @@ if not os.path.exists(outDir):
 else:
   print "Output directory already exists"
 
-numCheck = 1000; # Number of filenames to check before giving up
-num = 0;
+numCheck = 1000 # Number of filenames to check before giving up
+num = 0
 while True:
   strCheck = getFilename(counter,outDir=outDir,label="*")
   print "Checking: " + strCheck
@@ -204,7 +192,6 @@ if vc.isOpened(): # try to get the first frame
   #frame = frame.astype(np.float32)
 else:
   rval = False
-
 
 print "\n"  
 nextEmotion = True
@@ -257,7 +244,7 @@ while rval:
   elif key == 32: # SPACE --> Next image
     print 'Label skipped'
     nextEmotion = True
-    continue; # Break out of loop
+    continue # Break out of loop
   elif key == 13: # ENTER --> Accept image
     if not oneFace:
       print "Error: ENTER pressed, but face invalid. Keep trying..."
@@ -267,9 +254,8 @@ while rval:
       print 'Image accepted and saved!'
       counter += 1
       nextEmotion = True
-      continue; # Break out of loop
+      continue # Break out of loop
   else: # Invalid key, ignore
     pass
-
 
 cv.destroyWindow("preview")

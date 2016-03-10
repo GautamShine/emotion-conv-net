@@ -37,6 +37,7 @@ for img in imgList:
         n += 1
     n += 10
 
+# Computes the cosine similarity between two vectors
 def cos_sim(a, b):
     return np.inner(a,b)/(np.linalg.norm(a)*np.linalg.norm(b))
 

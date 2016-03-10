@@ -29,7 +29,6 @@ dirJaffe = 'datasets/jaffe'
 dirCKPlus = 'datasets/CK_Plus'
 dirMisc = 'datasets/misc'
 dirTraining = 'datasets/validation_images'
-# dirOther ... TODO: allow any generic directory of pictures
 
 # Select which dataset to use (case insensitive):
 #dataset = 'jaffe'
@@ -105,5 +104,3 @@ if crop_time is not None:
     print 'Crop time: ' + str(crop_time) + 's\t(' + str(crop_time / len(input_list)) + "s / image)"
 print 'Classify time: ' + str(classify_time) + 's\t(' + str(classify_time / len(input_list)) + "s / image)"
 print 'Total time: ' + str(totalTime) + 's\t(' + str(totalTime / len(input_list)) + "s / image)"
-
-

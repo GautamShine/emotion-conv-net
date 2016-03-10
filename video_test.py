@@ -9,22 +9,6 @@ from caffe_functions import *
 from opencv_functions import *
 from utility_functions import *
 
-
-
-
-
-################################################################################################
-#
-# TO DO:
-#  - Running average to smooth out fluctuations in face detection and emotion classification
-#  - Test accuracy of different networks
-#  - Consider downloading and training a brand new network 
-#    The paper Chris sent us got 95% accuracy training an SVM on top of GoogLeNet!
-#  - Improve speed if at all possible
-#  - Embed on the TK1! (you got this, Chris)
-#
-#################################################################################################
-
 categories = [ 'Angry' , 'Disgust' , 'Fear' , 'Happy'  , 'Neutral' ,  'Sad' , 'Surprise']
 
 plotSideBySide = True # Plot before/after images together?
@@ -32,7 +16,6 @@ saveDir = 'test_screenshots' # Folder to save screenshots to
 
 useCNN = True # Set to false to simply display the default emoji
 defaultEmoji = 2 # Index of default emoji (0-6)
-
 
 ### START SCRIPT ###
 
@@ -47,7 +30,6 @@ if useCNN:
 # Get all emojis
 emojis = loadAllEmojis()
 
-
 # Set up display window
 cv.namedWindow("preview")
 
@@ -60,7 +42,6 @@ if vc.isOpened(): # try to get the first frame
   #frame = frame.astype(np.float32)
 else:
   rval = False
-
 
 while rval:
   # Mirror image
@@ -103,7 +84,6 @@ while rval:
   else:
     img = frame.copy()
     cv.imshow("preview", img)
-
 
   # Read in next frame
   rval, frame = vc.read()

@@ -43,19 +43,23 @@ def vis_square(data, padsize=1, padval=0):
     showimage(data)
 
 # Plot the last image and conv1 layer's weights and responses
-def plot_layer(input_image, VGG_S_Net, layer):
-    plt.figure(1)
-    _ = plt.imshow(input_image)
+def plot_layer(input_image, VGG_S_Net, layer, n=0, img=False, weight=False, neur=True):
+    # Show image
+    if img:
+        plt.figure(n+1)
+        plt.imshow(input_image)
 
-    plt.figure(2)
-    filters = VGG_S_Net.params[layer][0].data
-    vis_square(filters.transpose(0, 2, 3, 1))
+    # Weight visualization (usually uninteresting)
+    if weight:
+        plt.figure(n+2)
+        filters = VGG_S_Net.params[layer][0].data
+        vis_square(filters.transpose(0, 2, 3, 1))
 
-    plt.figure(3)
-    feat = VGG_S_Net.blobs[layer].data[0]
-    vis_square(feat)
-
-    plt.show(block=False)
+    # Neuron responses
+    if neur:
+        plt.figure(n+3)
+        feat = VGG_S_Net.blobs[layer].data[0]
+        vis_square(feat)
 
 # RGB dimension swap + resize
 # Output should be 3x256x256 for VGG_S net regardless of input shape
@@ -254,6 +258,7 @@ def classify_emotions(input_list, color, categories, labels, plot_neurons, plot_
     if plot_neurons:
         layer = 'conv1'
         plot_layer(input_image, VGG_S_Net, layer)
+        plt.show(block=False)
 
     # Generates confusion matrix and calculates accuracy
     confusion_matrix(conf_mat, categories, plot_confusion)
@@ -279,7 +284,6 @@ def classify_video_frame(frame, faces, VGG_S_Net, categories=None):
 
         # Input image should be WxHxK, e.g. 490x640x3
         prediction = VGG_S_Net.predict([img], oversample=False)
-
 
         labels.append(prediction.argmax())
 

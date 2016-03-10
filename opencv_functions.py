@@ -96,7 +96,6 @@ def rescaleCropbox(img,cropBox,scale=1.0):
         # Invalid input. Return original
         return cropBox
 
-
     if scale < 1.0:
         x += int(w*(1-scale)/2)
         y += int(h*(1-scale)/2)
@@ -228,11 +227,9 @@ def addMultipleEmojis(img,faces,emojis,labels):
     categories = [ 'Angry' , 'Disgust' , 'Fear' , 'Happy'  , 'Neutral' ,  'Sad' , 'Surprise']
     
     for i in range(len(labels)):
-
         x,y,w,h = faces[i]
         label = labels[i]
         emoji = emojis[int(label)]
-
 
         # Resize emoji to desired width and height
         dim = max(w,h)
@@ -251,16 +248,14 @@ def addMultipleEmojis(img,faces,emojis,labels):
 
     return img
 
-
 # Switch between RGB and BGR
 def toggleRGB(img):
   r,g,b = cv.split(img)
   img = cv.merge([b,g,r])
   return img
 
-
 # Combine two images for displaying side-by-side
-# If maxSize is true, crops sides of image to keep under 2880 pixel width of screen
+# If maxSize is true, crops sides of image to keep under 2880 pixels in width
 def cvCombineTwoImages(img1,img2,buf=2,maxSize=True):
   h1, w1, c1 = img1.shape
   h2, w2, c2 = img2.shape
@@ -296,12 +291,10 @@ def cvCombineTwoImages(img1,img2,buf=2,maxSize=True):
   # Returned combined image as numpy array of uint8's
   return img
 
-
 # Create a directory only if it does not already exist
 def mkdirNoForce(dir):
     if not os.path.exists(dir):
         os.mkdir(dir)
-
 
 # Save a test image with a default name from the current timestamp
 def saveTestImage(img,filename=None,outDir=None):
